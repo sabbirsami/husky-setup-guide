@@ -20,7 +20,7 @@ This guide provides step-by-step instructions to set up Husky with pre-commit ho
 cd your-frontend-project
 
 # Install Husky and related packages
-npm install --save-dev husky @commitlint/cli @commitlint/config-conventional lint-staged prettier
+npm install --save-dev husky @commitlint/cli @commitlint/config-conventional lint-staged prettier prettier-plugin-tailwindcss
 ```
 
 ### 2. Initialize Husky
@@ -77,9 +77,12 @@ Create `.prettierrc` in your project root:
   "singleQuote": true,
   "printWidth": 80,
   "tabWidth": 2,
-  "useTabs": false
+  "useTabs": false,
+  "plugins": ["prettier-plugin-tailwindcss"]
 }
 ```
+
+**Note:** The `prettier-plugin-tailwindcss` plugin automatically sorts Tailwind CSS classes according to the recommended class order. Make sure you have a `tailwind.config.js` file in your project root for the plugin to work properly.
 
 ### 6. Configure Pre-commit Hook
 
@@ -389,6 +392,51 @@ npm update husky
 npx husky init
 ```
 
+### Prettier Plugin Tailwindcss Issues
+
+**Issue: Tailwind classes not being sorted**
+
+1. **Check if prettier-plugin-tailwindcss is installed:**
+   ```bash
+   npm list prettier-plugin-tailwindcss
+   ```
+
+2. **Ensure the plugin is in your .prettierrc:**
+   ```json
+   {
+     "plugins": ["prettier-plugin-tailwindcss"]
+   }
+   ```
+
+3. **Make sure you have tailwind.config.js in your project root:**
+   ```bash
+   # If missing, create it
+   npx tailwindcss init
+   ```
+
+4. **Test the plugin manually:**
+   ```bash
+   # Format a specific file
+   npx prettier --write "src/components/YourComponent.tsx"
+   
+   # Check if classes are being sorted
+   echo '<div className="text-red-500 bg-blue-200 p-4 m-2"></div>' | npx prettier --parser html --stdin-filepath test.html
+   ```
+
+5. **Clear Prettier cache:**
+   ```bash
+   npx prettier --cache-location=node_modules/.cache/prettier/.prettier-cache --write .
+   ```
+
+**Issue: Plugin conflicts with other Prettier plugins**
+
+Make sure prettier-plugin-tailwindcss is the **last** plugin in your plugins array:
+```json
+{
+  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"]
+}
+```
+
 ---
 
 ## Quick Setup Commands Summary
@@ -406,8 +454,8 @@ npm i prettier-plugin-tailwindcss
 ### Backend (Express TypeScript)
 
 ```bash
-cd your-backend-project
-npm install --save-dev husky @commitlint/cli @commitlint/config-conventional lint-staged prettier
+cd your-frontend-project
+npm install --save-dev husky @commitlint/cli @commitlint/config-conventional lint-staged prettier prettier-plugin-tailwindcss
 npx husky init
 # Then follow configuration steps above
 ```
